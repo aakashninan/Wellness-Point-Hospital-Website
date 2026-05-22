@@ -52,7 +52,7 @@ export default function BookAppointment() {
   useEffect(() => {
     if (!form.doctor || !form.date) return;
 
-    fetch('http://localhost:5010/api/appointments')
+    fetch('https://wellness-point-hospital-website-1.onrender.com')
       .then((res) => res.json())
       .then((data) => {
         const taken = data
@@ -166,7 +166,7 @@ export default function BookAppointment() {
     }
 
     try {
-      const res = await fetch('http://localhost:5010/api/appointments', {
+      const res = await fetch('https://wellness-point-hospital-website-1.onrender.com', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
