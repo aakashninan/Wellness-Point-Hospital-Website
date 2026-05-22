@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API = "http://localhost:5010/api/appointments";
+const API = "https://wellness-point-hospital-website-1.onrender.com";
 
 /* ================= DOCTOR RULES ================= */
 const schedules = {
