@@ -3,18 +3,23 @@ import Appointment from "../models/Appointment.js";
 
 const router = express.Router();
 
-/* GET all appointments */
+/* ================= GET ALL APPOINTMENTS ================= */
 router.get("/", async (req, res) => {
-  const data = await Appointment.find();
-  res.json(data);
+  try {
+    const data = await Appointment.find();
+    res.json(data);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
-/* CREATE appointment (FIX DUPLICATE BUG HERE) */
+/* ================= CREATE APPOINTMENT ================= */
 router.post("/", async (req, res) => {
   try {
     const { doctor, date, time } = req.body;
 
-    // 🔴 CHECK IF SLOT ALREADY BOOKED
+    // CHECK IF SLOT ALREADY BOOKED
     const existing = await Appointment.findOne({
       doctor,
       date,
@@ -37,6 +42,7 @@ router.post("/", async (req, res) => {
   }
 });
 
+/* ================= UPDATE STATUS ================= */
 router.put("/:id", async (req, res) => {
   try {
     const updated = await Appointment.findByIdAndUpdate(
@@ -45,7 +51,30 @@ router.put("/:id", async (req, res) => {
       { new: true }
     );
 
+    if (!updated) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
     res.json(updated);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/* ================= DELETE APPOINTMENT ================= */
+router.delete("/:id", async (req, res) => {
+  try {
+    const deleted = await Appointment.findByIdAndDelete(req.params.id);
+
+    if (!deleted) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    res.json({
+      message: "Appointment deleted successfully",
+      deleted,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
