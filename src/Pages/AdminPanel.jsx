@@ -24,6 +24,7 @@ export default function AdminPanel() {
 
   const seenIdsRef = useRef(new Set());
   const appointmentRefs = useRef({});
+  const intervalRef = useRef(null);
 
   const [notifications, setNotifications] = useState([]);
 
@@ -56,11 +57,24 @@ export default function AdminPanel() {
     }
   };
 
+  /* ================= AUTO REFRESH (FIXED) ================= */
   useEffect(() => {
     if (!isAuth) return;
+
+    // initial fetch immediately
     load();
-    const interval = setInterval(load, 8000);
-    return () => clearInterval(interval);
+
+    // clear old interval if any (prevents duplicates)
+    if (intervalRef.current) clearInterval(intervalRef.current);
+
+    // auto refresh every 5 seconds
+    intervalRef.current = setInterval(() => {
+      load();
+    }, 5000);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
   }, [isAuth]);
 
   /* ================= LOGIN ================= */
@@ -315,6 +329,44 @@ export default function AdminPanel() {
             ))}
           </div>
         ))}
+
+      {/* ================= TODAY ================= */}
+      {view === "today" && (
+        <div className="bg-white p-4 rounded-xl shadow">
+          <h2 className="font-bold mb-4">📅 Today ({today})</h2>
+
+          {todayList.length === 0 ? (
+            <p className="text-slate-500">No appointments today</p>
+          ) : (
+            todayList.map((a) => (
+              <div key={a._id} className="border-b p-3">
+                <p className="font-semibold">{a.name}</p>
+                <p>{a.doctor}</p>
+                <p>{a.time}</p>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* ================= TOMORROW ================= */}
+      {view === "tomorrow" && (
+        <div className="bg-white p-4 rounded-xl shadow">
+          <h2 className="font-bold mb-4">📅 Tomorrow ({tomorrow})</h2>
+
+          {tomorrowList.length === 0 ? (
+            <p className="text-slate-500">No appointments tomorrow</p>
+          ) : (
+            tomorrowList.map((a) => (
+              <div key={a._id} className="border-b p-3">
+                <p className="font-semibold">{a.name}</p>
+                <p>{a.doctor}</p>
+                <p>{a.time}</p>
+              </div>
+            ))
+          )}
+        </div>
+      )}
 
       {/* ================= STATS ================= */}
       {view === "stats" && (
