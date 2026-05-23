@@ -4,43 +4,17 @@ import { useNavigate } from "react-router-dom";
 const API =
   "https://wellness-point-hospital-website-1.onrender.com/api/appointments";
 
-/* ================= DOCTOR RULES ================= */
-const schedules = {
-  "Dr. Gikku P Ninan": {
-    days: [1, 2, 3, 4, 5, 6],
-    slots: [
-      { start: "08:00", end: "13:00" },
-      { start: "16:00", end: "19:00" },
-    ],
-  },
-  "Dr. Meera Punnoose": {
-    days: [1, 2, 3, 4, 5, 6],
-    slots: [
-      { start: "09:00", end: "13:00" },
-      { start: "15:30", end: "19:00" },
-    ],
-  },
-  "Dr. Shinto Thomas George": {
-    days: [1, 3, 5],
-    slots: [{ start: "17:30", end: "19:00" }],
-  },
-  "Dr. Amal": { emergency: true },
-};
+/* ================= GROUP BY DATE (SAFE) ================= */
+const groupByDate = (list = []) => {
+  return list.reduce((acc, item) => {
+    if (!item?.date) return acc;
 
-const doctorList = [
-  { doctor: "Dr. Gikku P Ninan", dept: "General Medicine" },
-  { doctor: "Dr. Meera Punnoose", dept: "ENT" },
-  { doctor: "Dr. Shinto Thomas George", dept: "Orthopedics" },
-  { doctor: "Dr. Amal", dept: "Emergency" },
-];
-
-/* ================= GROUP BY DATE ================= */
-const groupByDate = (list) =>
-  list.reduce((acc, item) => {
     acc[item.date] = acc[item.date] || [];
     acc[item.date].push(item);
+
     return acc;
   }, {});
+};
 
 /* ================= COMPONENT ================= */
 export default function AdminPanel() {
@@ -56,40 +30,32 @@ export default function AdminPanel() {
     password: "",
   });
 
-  /* ================= LIVE NOTIFICATIONS ================= */
+  /* ================= NOTIFICATIONS ================= */
   const [lastCount, setLastCount] = useState(0);
   const [notifications, setNotifications] = useState([]);
 
-  const [manual, setManual] = useState({
-    name: "",
-    phone: "",
-    doctor: "",
-    department: "",
-    date: "",
-    time: "",
-    symptoms: "",
-    status: "approved",
-  });
-
   /* ================= FETCH ================= */
   const load = async () => {
-    const res = await fetch(API);
-    const data = await res.json();
+    try {
+      const res = await fetch(API);
+      const data = await res.json();
 
-    if (lastCount && data.length > lastCount) {
-      const newItems = data.length - lastCount;
+      if (lastCount && data.length > lastCount) {
+        setNotifications((prev) => [
+          {
+            id: Date.now(),
+            message: `🆕 ${data.length - lastCount} new appointment(s)`,
+          },
+          ...prev,
+        ]);
+      }
 
-      setNotifications((prev) => [
-        {
-          id: Date.now(),
-          message: `🆕 ${newItems} new appointment(s) received`,
-        },
-        ...prev,
-      ]);
+      setAppointments(data || []);
+      setLastCount(data.length || 0);
+    } catch (err) {
+      console.error("API error:", err);
+      setAppointments([]);
     }
-
-    setAppointments(data);
-    setLastCount(data.length);
   };
 
   /* ================= POLLING ================= */
@@ -97,10 +63,7 @@ export default function AdminPanel() {
     if (!isAuth) return;
 
     load();
-
-    const interval = setInterval(() => {
-      load();
-    }, 10000);
+    const interval = setInterval(load, 10000);
 
     return () => clearInterval(interval);
   }, [isAuth, lastCount]);
@@ -109,10 +72,7 @@ export default function AdminPanel() {
   const handleLogin = (e) => {
     e.preventDefault();
 
-    if (
-      login.username === "wpadmin" &&
-      login.password === "wp111168"
-    ) {
+    if (login.username === "wpadmin" && login.password === "wp111168") {
       setIsAuth(true);
     } else {
       alert("Invalid credentials");
@@ -144,15 +104,22 @@ export default function AdminPanel() {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
-  /* ================= FILTERS ================= */
+  /* ================= FILTERS (SAFE) ================= */
+  const normalized = useMemo(() => {
+    return appointments.map((a) => ({
+      ...a,
+      status: (a.status || "pending").toLowerCase(),
+    }));
+  }, [appointments]);
+
   const pending = useMemo(
-    () => appointments.filter((a) => a.status !== "approved"),
-    [appointments]
+    () => normalized.filter((a) => a.status !== "approved"),
+    [normalized]
   );
 
   const approved = useMemo(
-    () => appointments.filter((a) => a.status === "approved"),
-    [appointments]
+    () => normalized.filter((a) => a.status === "approved"),
+    [normalized]
   );
 
   const today = new Date().toISOString().split("T")[0];
@@ -214,164 +181,143 @@ export default function AdminPanel() {
           <div
             key={n.id}
             onClick={() => removeNotification(n.id)}
-            className="bg-emerald-600 text-white px-4 py-3 rounded-xl shadow cursor-pointer"
+            className="bg-emerald-600 text-white px-4 py-3 rounded-xl cursor-pointer"
           >
             {n.message}
-            <p className="text-xs opacity-80">
-              Click to dismiss
-            </p>
           </div>
         ))}
       </div>
 
       {/* HEADER */}
       <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-serif font-semibold">
-            Admin Dashboard
-          </h1>
-          <p className="text-sm text-slate-500">
-            Manage hospital appointments efficiently
-          </p>
-        </div>
+        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
 
         <button
           onClick={() => navigate("/")}
-          className="px-5 py-2 bg-slate-900 text-white rounded-xl"
+          className="bg-black text-white px-4 py-2 rounded"
         >
           Home
         </button>
       </div>
 
       {/* TABS */}
-      <div className="flex gap-2 flex-wrap bg-white p-2 rounded-2xl shadow-sm w-fit">
-        {["pending", "approved", "today", "tomorrow", "add"].map(
-          (v) => (
-            <button
-              key={v}
-              onClick={() => setView(v)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium ${
-                view === v
-                  ? "bg-emerald-600 text-white"
-                  : "text-slate-600 hover:bg-slate-100"
-              }`}
-            >
-              {v.toUpperCase()}
-            </button>
-          )
-        )}
+      <div className="flex gap-2 bg-white p-2 rounded-xl w-fit">
+        {["pending", "approved", "today", "tomorrow"].map((v) => (
+          <button
+            key={v}
+            onClick={() => setView(v)}
+            className={`px-4 py-2 rounded-lg ${
+              view === v ? "bg-green-600 text-white" : ""
+            }`}
+          >
+            {v.toUpperCase()}
+          </button>
+        ))}
       </div>
 
       {/* ================= PENDING ================= */}
       {view === "pending" && (
-        <div className="space-y-4">
-          {Object.keys(pendingGrouped).map((date) => (
-            <div key={date} className="bg-white rounded-2xl shadow-sm">
-              <button
-                onClick={() =>
-                  setOpenDate(openDate === date ? null : date)
-                }
-                className="w-full p-5 flex justify-between bg-slate-50"
-              >
-                📅 {date}
-              </button>
+        <div>
+          {Object.keys(pendingGrouped).length === 0 ? (
+            <p>No pending appointments</p>
+          ) : (
+            Object.keys(pendingGrouped).map((date) => (
+              <div key={date} className="bg-white p-4 rounded-xl mb-3">
+                <h2>📅 {date}</h2>
 
-              {openDate === date && (
-                <div className="p-4 space-y-3">
-                  {pendingGrouped[date].map((a) => (
-                    <div
-                      key={a._id}
-                      className="flex justify-between bg-slate-50 p-4 rounded-xl"
-                    >
-                      <div>
-                        <h3 className="font-semibold">{a.name}</h3>
-                        <p>{a.doctor}</p>
-                        <p>{a.time}</p>
-                      </div>
-
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() =>
-                            updateStatus(a._id, "approved")
-                          }
-                          className="bg-emerald-600 text-white px-3 py-1 rounded"
-                        >
-                          Approve
-                        </button>
-
-                        <button
-                          onClick={() => deleteAppointment(a._id)}
-                          className="bg-red-600 text-white px-3 py-1 rounded"
-                        >
-                          Delete
-                        </button>
-                      </div>
+                {pendingGrouped[date].map((a) => (
+                  <div key={a._id} className="flex justify-between p-2">
+                    <div>
+                      <p>{a.name}</p>
+                      <p>{a.doctor}</p>
+                      <p>{a.time}</p>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => updateStatus(a._id, "approved")}
+                        className="bg-green-600 text-white px-3 py-1"
+                      >
+                        Approve
+                      </button>
+
+                      <button
+                        onClick={() => deleteAppointment(a._id)}
+                        className="bg-red-600 text-white px-3 py-1"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))
+          )}
         </div>
       )}
 
       {/* ================= APPROVED ================= */}
       {view === "approved" && (
-        <div className="space-y-4">
-          {Object.keys(approvedGrouped).map((date) => (
-            <div key={date} className="bg-emerald-50 p-5 rounded-2xl">
-              <h2>📅 {date}</h2>
+        <div>
+          {Object.keys(approvedGrouped).length === 0 ? (
+            <p>No approved appointments</p>
+          ) : (
+            Object.keys(approvedGrouped).map((date) => (
+              <div key={date} className="bg-emerald-50 p-4 rounded-xl mb-3">
+                <h2>📅 {date}</h2>
 
-              {approvedGrouped[date].map((a) => (
-                <div key={a._id} className="bg-white p-4 rounded-xl mb-3">
-                  <h3>{a.name}</h3>
-                  <p>{a.doctor}</p>
-                  <p>{a.time}</p>
+                {approvedGrouped[date].map((a) => (
+                  <div key={a._id} className="bg-white p-3 rounded-lg mb-2">
+                    <p>{a.name}</p>
+                    <p>{a.doctor}</p>
+                    <p>{a.time}</p>
 
-                  <button
-                    onClick={() => deleteAppointment(a._id)}
-                    className="mt-2 bg-red-600 text-white px-3 py-1 rounded"
-                  >
-                    Delete
-                  </button>
-                </div>
-              ))}
-            </div>
-          ))}
+                    <button
+                      onClick={() => deleteAppointment(a._id)}
+                      className="bg-red-600 text-white px-3 py-1 mt-2"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ))
+          )}
         </div>
       )}
 
-      {/* ================= TODAY ================= */}
+      {/* TODAY */}
       {view === "today" && (
-        <div className="space-y-3">
-          {todayList.map((a) => (
-            <div key={a._id} className="bg-white p-4 rounded-xl">
-              <h3>{a.name}</h3>
-              <p>{a.doctor}</p>
-              <p>{a.time}</p>
-            </div>
-          ))}
+        <div>
+          {todayList.length === 0 ? (
+            <p>No appointments today</p>
+          ) : (
+            todayList.map((a) => (
+              <div key={a._id} className="bg-white p-3 rounded-xl mb-2">
+                <p>{a.name}</p>
+                <p>{a.doctor}</p>
+                <p>{a.time}</p>
+              </div>
+            ))
+          )}
         </div>
       )}
 
-      {/* ================= TOMORROW ================= */}
+      {/* TOMORROW */}
       {view === "tomorrow" && (
-        <div className="space-y-3">
-          {tomorrowList.map((a) => (
-            <div key={a._id} className="bg-white p-4 rounded-xl">
-              <h3>{a.name}</h3>
-              <p>{a.doctor}</p>
-              <p>{a.time}</p>
-            </div>
-          ))}
+        <div>
+          {tomorrowList.length === 0 ? (
+            <p>No appointments tomorrow</p>
+          ) : (
+            tomorrowList.map((a) => (
+              <div key={a._id} className="bg-white p-3 rounded-xl mb-2">
+                <p>{a.name}</p>
+                <p>{a.doctor}</p>
+                <p>{a.time}</p>
+              </div>
+            ))
+          )}
         </div>
-      )}
-
-      {/* ================= ADD ================= */}
-      {view === "add" && (
-        <form className="bg-white p-6 rounded-xl space-y-4">
-          <h2>Create Appointment</h2>
-        </form>
       )}
     </div>
   );
