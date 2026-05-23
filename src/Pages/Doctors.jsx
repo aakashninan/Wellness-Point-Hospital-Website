@@ -1,4 +1,4 @@
-import { Stethoscope } from 'lucide-react';
+import { Stethoscope, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import gikkuImg from './gikku.jpg';
 import meeraImg from './meera.jpg';
@@ -32,22 +32,18 @@ export default function Doctors() {
     {
       dept: 'Orthopedics',
       doctor: 'Dr. Shinto Thomas George',
-      role: 'Orthopedic Surgeon (MBBS, D Ortho, CFA)',
       image: '/doctor3.jpg',
+      role: 'Orthopedic Surgeon (MBBS, D Ortho, CFA)',
       desc: 'Expert in bone and joint care including fracture management, sports injuries, and joint replacement surgeries using modern techniques.',
-      hours: [
-        'Mon, Wed, Fri: 05:30 PM - 07:00 PM',
-      ],
+      hours: ['Mon, Wed, Fri: 05:30 PM - 07:00 PM'],
     },
     {
       dept: 'Emergency & Trauma Care',
       doctor: 'Dr. Amal',
-      role: 'Emergency Medicine Specialist (MBBS)',
       image: '/doctor4.jpg',
+      role: 'Emergency Medicine Specialist (MBBS)',
       desc: 'Leads emergency response care, trauma stabilization, and acute medical interventions with rapid decision-making expertise.',
-      hours: [
-        '24/7 Emergency Availability',
-      ],
+      hours: ['24/7 Emergency Availability'],
     },
   ];
 
@@ -60,80 +56,88 @@ export default function Doctors() {
 
       {/* HEADER */}
       <div className="text-center max-w-3xl mx-auto mb-16">
+        <div className="flex justify-center items-center gap-2 text-emerald-600 mb-3">
+          <Star className="h-5 w-5" />
+          <p className="uppercase tracking-[0.3em] text-sm font-semibold">
+            Our Medical Heroes
+          </p>
+          <Star className="h-5 w-5" />
+        </div>
+
         <h1 className="font-serif text-4xl md:text-5xl font-semibold text-slate-900">
-          Our Medical Experts
+          Meet the Specialists Who Heal Lives
         </h1>
+
         <p className="mt-4 text-slate-600 text-lg leading-relaxed">
-          Dedicated specialists delivering precise, compassionate and evidence-based care across all departments.
+          Dedicated specialists delivering precise, compassionate care across all departments.
         </p>
       </div>
 
       {/* CARDS */}
-      <div className="space-y-12 max-w-5xl mx-auto">
+      <div className="space-y-14 max-w-5xl mx-auto">
 
         {doctors.map((doc, idx) => (
           <div
             key={idx}
-            className="flex flex-col md:flex-row bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden h-[300px]"
+            className="relative group flex flex-col md:flex-row items-center bg-white border border-slate-100 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-500 overflow-hidden"
           >
 
-            {/* IMAGE */}
-            <div className="md:w-1/3 w-full h-[300px] overflow-hidden bg-slate-100">
-              <img
-                src={doc.image}
-                alt={doc.doctor}
-                className="w-full h-full object-cover object-center"
-              />
+            {/* IMAGE SECTION */}
+            <div className="md:w-1/3 flex items-center justify-center py-14 bg-gradient-to-b from-emerald-50/50 to-white">
+
+              <div className="relative">
+
+                {/* glow */}
+                <div className="absolute inset-0 rounded-full bg-emerald-200 blur-3xl opacity-40 group-hover:opacity-70 transition" />
+
+                {/* BIGGER IMAGE CIRCLE */}
+                <img
+                  src={doc.image}
+                  alt={doc.doctor}
+                  className="relative w-60 h-60 md:w-72 md:h-72 rounded-full object-cover border-4 border-white shadow-2xl group-hover:scale-105 transition duration-500"
+                />
+              </div>
             </div>
 
             {/* CONTENT */}
-            <div className="md:w-2/3 p-8 md:p-10 flex flex-col justify-center space-y-3 overflow-hidden">
+            <div className="md:w-2/3 p-10 flex flex-col justify-center space-y-3">
 
-              {/* DEPARTMENT */}
               <div className="flex items-center gap-2 text-emerald-700 uppercase tracking-[0.25em] text-xs font-medium">
                 <Stethoscope className="h-4 w-4" />
                 {doc.dept}
               </div>
 
-              {/* NAME */}
-              <h2 className="text-2xl md:text-3xl font-semibold text-slate-900">
+              <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 group-hover:text-emerald-700 transition">
                 {doc.doctor}
               </h2>
 
-              {/* ROLE */}
               <p className="text-sm font-medium text-slate-500">
                 {doc.role}
               </p>
 
-              {/* DESCRIPTION */}
-              <p className="text-slate-600 leading-relaxed text-sm md:text-base line-clamp-3">
+              <p className="text-slate-600 leading-relaxed text-sm md:text-base">
                 {doc.desc}
               </p>
 
-              {/* OP HOURS (IMPROVED UI) */}
-              <div className="mt-1">
+              <div className="mt-2">
                 <div className="flex items-center gap-2 text-slate-800 font-medium text-sm">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                   OP Hours
                 </div>
 
                 <div className="mt-2 space-y-1 pl-4 border-l border-slate-200">
                   {doc.hours.map((h, i) => (
-                    <p
-                      key={i}
-                      className="text-sm md:text-[13.5px] text-slate-600 leading-relaxed"
-                    >
+                    <p key={i} className="text-sm text-slate-600">
                       {h}
                     </p>
                   ))}
                 </div>
               </div>
 
-              {/* BUTTON */}
-              <div className="pt-2">
+              <div className="pt-3">
                 <button
                   onClick={() => handleBook(doc)}
-                  className="px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition"
+                  className="px-6 py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 hover:scale-105 transition"
                 >
                   Book Appointment
                 </button>
@@ -142,7 +146,6 @@ export default function Doctors() {
             </div>
           </div>
         ))}
-
       </div>
     </div>
   );
