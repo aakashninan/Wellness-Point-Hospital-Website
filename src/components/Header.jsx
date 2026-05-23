@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, PhoneCall } from 'lucide-react';
 
 // Import Logo
-import HospitalLogo from '../pages/logo.jpg';
+import HospitalLogo from '../Pages/logo.jpg';
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
