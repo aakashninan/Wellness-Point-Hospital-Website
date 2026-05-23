@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const API = "https://wellness-point-hospital-website-1.onrender.com/api/appointments";
+const API =
+  "https://wellness-point-hospital-website-1.onrender.com/api/appointments";
 
 /* ================= DOCTOR RULES ================= */
 const schedules = {
@@ -12,6 +13,7 @@ const schedules = {
       { start: "16:00", end: "19:00" },
     ],
   },
+
   "Dr. Meera Punnoose": {
     days: [1, 2, 3, 4, 5, 6],
     slots: [
@@ -19,10 +21,12 @@ const schedules = {
       { start: "15:30", end: "19:00" },
     ],
   },
+
   "Dr. Shinto Thomas George": {
     days: [1, 3, 5],
     slots: [{ start: "17:30", end: "19:00" }],
   },
+
   "Dr. Amal": { emergency: true },
 };
 
@@ -80,9 +84,15 @@ export default function AdminPanel() {
   /* ================= LOGIN ================= */
   const handleLogin = (e) => {
     e.preventDefault();
-    if (login.username === "wpadmin" && login.password === "wp111168") {
+
+    if (
+      login.username === "wpadmin" &&
+      login.password === "wp111168"
+    ) {
       setIsAuth(true);
-    } else alert("Invalid credentials");
+    } else {
+      alert("Invalid credentials");
+    }
   };
 
   /* ================= UPDATE STATUS ================= */
@@ -108,12 +118,16 @@ export default function AdminPanel() {
   );
 
   const today = new Date().toISOString().split("T")[0];
+
   const tomorrow = new Date(Date.now() + 86400000)
     .toISOString()
     .split("T")[0];
 
   const todayList = approved.filter((a) => a.date === today);
-  const tomorrowList = approved.filter((a) => a.date === tomorrow);
+
+  const tomorrowList = approved.filter(
+    (a) => a.date === tomorrow
+  );
 
   const pendingGrouped = groupByDate(pending);
   const approvedGrouped = groupByDate(approved);
@@ -131,9 +145,11 @@ export default function AdminPanel() {
     if (!manual.doctor || !manual.date) return [];
 
     const s = schedules[manual.doctor];
+
     if (!s || s.emergency) return [];
 
     const day = new Date(manual.date).getDay();
+
     if (!s.days.includes(day)) return [];
 
     let slots = [];
@@ -146,9 +162,12 @@ export default function AdminPanel() {
       let end = eh * 60 + em;
 
       for (let t = start; t <= end; t += 15) {
-        const time = `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(
-          t % 60
-        ).padStart(2, "0")}`;
+        const time = `${String(
+          Math.floor(t / 60)
+        ).padStart(2, "0")}:${String(t % 60).padStart(
+          2,
+          "0"
+        )}`;
 
         if (!isTaken(manual.doctor, manual.date, time)) {
           slots.push(time);
@@ -172,6 +191,18 @@ export default function AdminPanel() {
     });
 
     alert("Added");
+
+    setManual({
+      name: "",
+      phone: "",
+      doctor: "",
+      department: "",
+      date: "",
+      time: "",
+      symptoms: "",
+      status: "approved",
+    });
+
     load();
   };
 
@@ -183,13 +214,18 @@ export default function AdminPanel() {
           onSubmit={handleLogin}
           className="bg-white p-8 rounded-3xl shadow w-[380px] space-y-4"
         >
-          <h1 className="text-2xl font-serif text-center">Admin Login</h1>
+          <h1 className="text-2xl font-serif text-center">
+            Admin Login
+          </h1>
 
           <input
             placeholder="Username"
             className="w-full p-3 border rounded-xl"
             onChange={(e) =>
-              setLogin({ ...login, username: e.target.value })
+              setLogin({
+                ...login,
+                username: e.target.value,
+              })
             }
           />
 
@@ -198,7 +234,10 @@ export default function AdminPanel() {
             placeholder="Password"
             className="w-full p-3 border rounded-xl"
             onChange={(e) =>
-              setLogin({ ...login, password: e.target.value })
+              setLogin({
+                ...login,
+                password: e.target.value,
+              })
             }
           />
 
@@ -210,16 +249,16 @@ export default function AdminPanel() {
     );
   }
 
-  /* ================= UI (IMPROVED ONLY, SAFE) ================= */
+  /* ================= MAIN UI ================= */
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6 space-y-6">
-
       {/* HEADER */}
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-serif font-semibold text-slate-900">
             Admin Dashboard
           </h1>
+
           <p className="text-sm text-slate-500">
             Manage hospital appointments efficiently
           </p>
@@ -235,7 +274,13 @@ export default function AdminPanel() {
 
       {/* TABS */}
       <div className="flex gap-2 flex-wrap bg-white p-2 rounded-2xl shadow-sm w-fit">
-        {["pending", "approved", "today", "tomorrow", "add"].map((v) => (
+        {[
+          "pending",
+          "approved",
+          "today",
+          "tomorrow",
+          "add",
+        ].map((v) => (
           <button
             key={v}
             onClick={() => setView(v)}
@@ -253,10 +298,38 @@ export default function AdminPanel() {
       {/* TODAY */}
       {view === "today" && (
         <div className="space-y-3">
-          <h2 className="font-semibold">Today</h2>
+          <h2 className="font-semibold text-xl">
+            Today's Appointments
+          </h2>
+
           {todayList.map((a) => (
-            <div key={a._id} className="bg-white p-4 rounded-xl shadow-sm">
-              {a.name} • {a.doctor} • {a.time}
+            <div
+              key={a._id}
+              className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100"
+            >
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <h3 className="font-semibold text-lg">
+                    {a.name}
+                  </h3>
+
+                  <p className="text-sm text-slate-600">
+                    Doctor: {a.doctor}
+                  </p>
+
+                  <p className="text-sm text-slate-600">
+                    Time: {a.time}
+                  </p>
+
+                  <p className="text-sm text-slate-600">
+                    Phone: {a.phone}
+                  </p>
+
+                  <p className="text-sm text-slate-600">
+                    Symptoms: {a.symptoms}
+                  </p>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -265,10 +338,36 @@ export default function AdminPanel() {
       {/* TOMORROW */}
       {view === "tomorrow" && (
         <div className="space-y-3">
-          <h2 className="font-semibold">Tomorrow</h2>
+          <h2 className="font-semibold text-xl">
+            Tomorrow's Appointments
+          </h2>
+
           {tomorrowList.map((a) => (
-            <div key={a._id} className="bg-white p-4 rounded-xl shadow-sm">
-              {a.name} • {a.doctor} • {a.time}
+            <div
+              key={a._id}
+              className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100"
+            >
+              <div className="space-y-1">
+                <h3 className="font-semibold text-lg">
+                  {a.name}
+                </h3>
+
+                <p className="text-sm text-slate-600">
+                  Doctor: {a.doctor}
+                </p>
+
+                <p className="text-sm text-slate-600">
+                  Time: {a.time}
+                </p>
+
+                <p className="text-sm text-slate-600">
+                  Phone: {a.phone}
+                </p>
+
+                <p className="text-sm text-slate-600">
+                  Symptoms: {a.symptoms}
+                </p>
+              </div>
             </div>
           ))}
         </div>
@@ -276,37 +375,59 @@ export default function AdminPanel() {
 
       {/* PENDING */}
       {view === "pending" && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {Object.keys(pendingGrouped).map((date) => (
-            <div key={date} className="bg-white rounded-2xl shadow-sm">
+            <div
+              key={date}
+              className="bg-white rounded-2xl shadow-sm overflow-hidden"
+            >
               <button
                 onClick={() =>
                   setOpenDate(openDate === date ? null : date)
                 }
-                className="w-full text-left p-4 font-semibold flex justify-between"
+                className="w-full text-left p-5 font-semibold flex justify-between items-center bg-slate-50"
               >
-                📅 {date}
-                <span className="text-xs text-slate-500">
+                <span>📅 {date}</span>
+
+                <span className="text-xs bg-slate-200 px-3 py-1 rounded-full">
                   {pendingGrouped[date].length}
                 </span>
               </button>
 
               {openDate === date && (
-                <div className="p-4 space-y-2">
+                <div className="p-4 space-y-3">
                   {pendingGrouped[date].map((a) => (
                     <div
                       key={a._id}
-                      className="flex justify-between bg-slate-50 p-3 rounded-xl"
+                      className="flex justify-between items-start bg-slate-50 p-4 rounded-xl"
                     >
-                      <div>
-                        {a.name} • {a.doctor} • {a.time}
+                      <div className="space-y-1">
+                        <h3 className="font-semibold">
+                          {a.name}
+                        </h3>
+
+                        <p className="text-sm text-slate-600">
+                          Doctor: {a.doctor}
+                        </p>
+
+                        <p className="text-sm text-slate-600">
+                          Time: {a.time}
+                        </p>
+
+                        <p className="text-sm text-slate-600">
+                          Phone: {a.phone}
+                        </p>
+
+                        <p className="text-sm text-slate-600">
+                          Symptoms: {a.symptoms}
+                        </p>
                       </div>
 
                       <button
                         onClick={() =>
                           updateStatus(a._id, "approved")
                         }
-                        className="bg-emerald-600 text-white px-3 py-1 rounded-lg"
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm transition"
                       >
                         Approve
                       </button>
@@ -321,18 +442,46 @@ export default function AdminPanel() {
 
       {/* APPROVED */}
       {view === "approved" && (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {Object.keys(approvedGrouped).map((date) => (
             <div
               key={date}
-              className="bg-emerald-50 p-4 rounded-xl"
+              className="bg-emerald-50 p-5 rounded-2xl"
             >
-              <h2 className="font-semibold">📅 {date}</h2>
-              {approvedGrouped[date].map((a) => (
-                <div key={a._id} className="text-sm mt-2">
-                  {a.name} • {a.doctor} • {a.time}
-                </div>
-              ))}
+              <h2 className="font-semibold text-lg mb-3">
+                📅 {date}
+              </h2>
+
+              <div className="space-y-3">
+                {approvedGrouped[date].map((a) => (
+                  <div
+                    key={a._id}
+                    className="bg-white p-4 rounded-xl"
+                  >
+                    <div className="space-y-1">
+                      <h3 className="font-semibold">
+                        {a.name}
+                      </h3>
+
+                      <p className="text-sm">
+                        Doctor: {a.doctor}
+                      </p>
+
+                      <p className="text-sm">
+                        Time: {a.time}
+                      </p>
+
+                      <p className="text-sm">
+                        Phone: {a.phone}
+                      </p>
+
+                      <p className="text-sm">
+                        Symptoms: {a.symptoms}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           ))}
         </div>
@@ -342,21 +491,45 @@ export default function AdminPanel() {
       {view === "add" && (
         <form
           onSubmit={add}
-          className="bg-white p-6 rounded-2xl space-y-3 max-w-xl"
+          className="bg-white p-6 rounded-2xl space-y-4 max-w-xl shadow-sm"
         >
+          <h2 className="text-xl font-semibold">
+            Create Appointment
+          </h2>
+
           <input
-            placeholder="Name"
+            placeholder="Patient Name"
+            value={manual.name}
             className="w-full p-3 border rounded-xl"
             onChange={(e) =>
-              setManual({ ...manual, name: e.target.value })
+              setManual({
+                ...manual,
+                name: e.target.value,
+              })
             }
           />
 
           <input
-            placeholder="Phone"
+            placeholder="Phone Number"
+            value={manual.phone}
             className="w-full p-3 border rounded-xl"
             onChange={(e) =>
-              setManual({ ...manual, phone: e.target.value })
+              setManual({
+                ...manual,
+                phone: e.target.value,
+              })
+            }
+          />
+
+          <textarea
+            placeholder="Symptoms"
+            value={manual.symptoms}
+            className="w-full p-3 border rounded-xl"
+            onChange={(e) =>
+              setManual({
+                ...manual,
+                symptoms: e.target.value,
+              })
             }
           />
 
@@ -366,6 +539,7 @@ export default function AdminPanel() {
               const d = doctorList.find(
                 (x) => x.doctor === e.target.value
               );
+
               setManual({
                 ...manual,
                 doctor: d.doctor,
@@ -374,6 +548,7 @@ export default function AdminPanel() {
             }}
           >
             <option>Select Doctor</option>
+
             {doctorList.map((d, i) => (
               <option key={i}>{d.doctor}</option>
             ))}
@@ -383,23 +558,30 @@ export default function AdminPanel() {
             type="date"
             className="w-full p-3 border rounded-xl"
             onChange={(e) =>
-              setManual({ ...manual, date: e.target.value })
+              setManual({
+                ...manual,
+                date: e.target.value,
+              })
             }
           />
 
           <select
             className="w-full p-3 border rounded-xl"
             onChange={(e) =>
-              setManual({ ...manual, time: e.target.value })
+              setManual({
+                ...manual,
+                time: e.target.value,
+              })
             }
           >
             <option>Select Time</option>
+
             {slots.map((t, i) => (
               <option key={i}>{t}</option>
             ))}
           </select>
 
-          <button className="w-full bg-slate-900 text-white py-3 rounded-xl">
+          <button className="w-full bg-slate-900 hover:bg-slate-800 text-white py-3 rounded-xl transition">
             Create Appointment
           </button>
         </form>
