@@ -23,8 +23,6 @@ export default function AdminPanel() {
   const [login, setLogin] = useState({ username: "", password: "" });
 
   const seenIdsRef = useRef(new Set());
-  const appointmentRefs = useRef({});
-  const highlightRef = useRef({});
 
   const [notifications, setNotifications] = useState([]);
 
@@ -44,7 +42,7 @@ export default function AdminPanel() {
           ...newAppointments.map((a) => ({
             id: a._id,
             appointmentId: a._id,
-            message: `🆕 ${a.name} booked ${a.doctor}`,
+            message: `🆕 ${a.name} → ${a.doctor}`,
           })),
           ...prev,
         ]);
@@ -85,6 +83,7 @@ export default function AdminPanel() {
   };
 
   const deleteAppointment = async (id) => {
+    if (!window.confirm("Delete this appointment?")) return;
     await fetch(`${API}/${id}`, { method: "DELETE" });
     load();
   };
@@ -111,14 +110,22 @@ export default function AdminPanel() {
   const pendingGrouped = groupByDate(pending);
   const approvedGrouped = groupByDate(approved);
 
-  /* ================= UI HELP ================= */
-  const CardInfo = ({ a }) => (
-    <div className="text-sm text-slate-600 mt-1 space-y-1">
-      <p>📞 {a.phone || "N/A"}</p>
-      <p>🩺 {a.symptoms || "No symptoms provided"}</p>
-    </div>
-  );
+  /* ================= STATS (NEW FEATURE) ================= */
+  const doctorStats = useMemo(() => {
+    const map = {};
 
+    appointments.forEach((a) => {
+      if (!a.date || !a.doctor) return;
+
+      if (!map[a.date]) map[a.date] = {};
+      map[a.date][a.doctor] =
+        (map[a.date][a.doctor] || 0) + 1;
+    });
+
+    return map;
+  }, [appointments]);
+
+  /* ================= LOGIN ================= */
   if (!isAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -126,6 +133,10 @@ export default function AdminPanel() {
           onSubmit={handleLogin}
           className="bg-white p-8 rounded-2xl shadow w-[360px] space-y-4"
         >
+          <h1 className="text-xl font-semibold text-center">
+            Admin Login
+          </h1>
+
           <input
             placeholder="Username"
             className="w-full p-3 border rounded-xl"
@@ -143,7 +154,7 @@ export default function AdminPanel() {
             }
           />
 
-          <button className="w-full bg-black text-white py-3 rounded-xl">
+          <button className="w-full bg-black text-white py-3 rounded-xl hover:bg-gray-800">
             Login
           </button>
         </form>
@@ -151,72 +162,79 @@ export default function AdminPanel() {
     );
   }
 
+  /* ================= UI ================= */
   return (
     <div className="min-h-screen bg-slate-50 p-6">
 
       {/* HEADER */}
-      <div className="flex justify-between mb-5">
+      <div className="flex justify-between mb-6">
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+
         <button
           onClick={() => navigate("/")}
-          className="bg-black text-white px-4 py-2 rounded-xl"
+          className="bg-black text-white px-4 py-2 rounded-xl hover:bg-gray-800"
         >
           Home
         </button>
       </div>
 
-      {/* TABS */}
-      <div className="flex gap-2 bg-white p-2 rounded-xl w-fit mb-5">
-        {["pending", "approved", "today", "tomorrow"].map((v) => (
-          <button
-            key={v}
-            onClick={() => setView(v)}
-            className={`px-4 py-2 rounded-lg ${
-              view === v ? "bg-emerald-600 text-white" : ""
-            }`}
-          >
-            {v.toUpperCase()}
-          </button>
-        ))}
+      {/* TABS (IMPROVED UI) */}
+      <div className="flex gap-2 bg-white p-2 rounded-2xl shadow w-fit mb-6">
+        {["pending", "approved", "today", "tomorrow", "stats"].map(
+          (v) => (
+            <button
+              key={v}
+              onClick={() => setView(v)}
+              className={`px-5 py-2 rounded-xl font-medium transition ${
+                view === v
+                  ? "bg-emerald-600 text-white shadow"
+                  : "hover:bg-slate-100"
+              }`}
+            >
+              {v.toUpperCase()}
+            </button>
+          )
+        )}
       </div>
 
       {/* ================= PENDING ================= */}
       {view === "pending" &&
         Object.keys(pendingGrouped).map((date) => (
-          <div key={date} className="bg-white rounded-xl mb-4">
-            <h2 className="p-4 font-semibold bg-slate-100">
+          <div
+            key={date}
+            className="bg-white rounded-xl shadow mb-4"
+          >
+            <h2 className="p-4 bg-slate-100 font-semibold">
               📅 {date}
             </h2>
 
             {pendingGrouped[date].map((a) => (
               <div
                 key={a._id}
-                className="p-4 border-b flex justify-between"
+                className="p-4 flex justify-between border-b"
               >
                 <div>
                   <p className="font-semibold">{a.name}</p>
-                  <p>👨‍⚕️ {a.doctor}</p>
-                  <p>⏰ {a.time}</p>
-
-                  {/* ✅ ADDED DETAILS */}
-                  <CardInfo a={a} />
+                  <p className="text-sm">{a.doctor}</p>
+                  <p className="text-sm">{a.time}</p>
                 </div>
 
+                {/* 🔥 AESTHETIC BUTTONS */}
                 <div className="flex gap-2">
                   <button
                     onClick={() =>
                       updateStatus(a._id, "approved")
                     }
-                    className="bg-emerald-600 text-white px-3 py-1 rounded"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 text-white shadow hover:scale-105 transition"
                   >
-                    Approve
+                    ✔ Approve
                   </button>
 
                   <button
                     onClick={() => deleteAppointment(a._id)}
-                    className="bg-red-600 text-white px-3 py-1 rounded"
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-500 to-red-700 text-white shadow hover:scale-105 transition"
                   >
-                    Delete
+                    🗑 Delete
                   </button>
                 </div>
               </div>
@@ -227,17 +245,20 @@ export default function AdminPanel() {
       {/* ================= APPROVED ================= */}
       {view === "approved" &&
         Object.keys(approvedGrouped).map((date) => (
-          <div key={date} className="bg-emerald-50 p-4 rounded-xl mb-4">
+          <div
+            key={date}
+            className="bg-emerald-50 p-4 rounded-xl mb-4"
+          >
             <h2 className="font-semibold mb-3">📅 {date}</h2>
 
             {approvedGrouped[date].map((a) => (
-              <div key={a._id} className="bg-white p-3 rounded-lg mb-2">
+              <div
+                key={a._id}
+                className="bg-white p-3 rounded-xl mb-2"
+              >
                 <p className="font-semibold">{a.name}</p>
-                <p>👨‍⚕️ {a.doctor}</p>
-                <p>⏰ {a.time}</p>
-
-                {/* ✅ ADDED DETAILS */}
-                <CardInfo a={a} />
+                <p>{a.doctor}</p>
+                <p>{a.time}</p>
               </div>
             ))}
           </div>
@@ -246,24 +267,52 @@ export default function AdminPanel() {
       {/* ================= TODAY ================= */}
       {view === "today" &&
         todayList.map((a) => (
-          <div key={a._id} className="bg-white p-3 rounded-xl mb-2">
-            <p>{a.name}</p>
-            <p>{a.doctor}</p>
-            <p>{a.time}</p>
-            <CardInfo a={a} />
+          <div
+            key={a._id}
+            className="bg-white p-3 rounded-xl mb-2"
+          >
+            {a.name} - {a.doctor} - {a.time}
           </div>
         ))}
 
       {/* ================= TOMORROW ================= */}
       {view === "tomorrow" &&
         tomorrowList.map((a) => (
-          <div key={a._id} className="bg-white p-3 rounded-xl mb-2">
-            <p>{a.name}</p>
-            <p>{a.doctor}</p>
-            <p>{a.time}</p>
-            <CardInfo a={a} />
+          <div
+            key={a._id}
+            className="bg-white p-3 rounded-xl mb-2"
+          >
+            {a.name} - {a.doctor} - {a.time}
           </div>
         ))}
+
+      {/* ================= STATS TAB ================= */}
+      {view === "stats" && (
+        <div className="space-y-4">
+          {Object.keys(doctorStats).map((date) => (
+            <div
+              key={date}
+              className="bg-white p-4 rounded-xl shadow"
+            >
+              <h2 className="font-bold mb-3">📅 {date}</h2>
+
+              {Object.entries(doctorStats[date]).map(
+                ([doctor, count]) => (
+                  <div
+                    key={doctor}
+                    className="flex justify-between p-2 border-b"
+                  >
+                    <span>{doctor}</span>
+                    <span className="font-semibold text-emerald-600">
+                      {count} appointments
+                    </span>
+                  </div>
+                )
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
