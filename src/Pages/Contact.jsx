@@ -1,22 +1,43 @@
 import { useState } from 'react';
-import { Send, CheckCircle } from 'lucide-react';
+import { Send, CheckCircle, Loader2 } from 'lucide-react';
 
 export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const handleInput = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const submitForm = (e) => {
+  const submitForm = async (e) => {
     e.preventDefault();
-    // Static simulation of form capture
-    console.log("Captured Content Data Payload:", formData);
-    setSubmitted(true);
-    setFormData({ name: '', email: '', message: '' });
-    setTimeout(() => setSubmitted(false), 5000);
+    setIsSending(true);
+
+    try {
+      const response = await fetch("https://formspree.io/f/mjgzrqjl", {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setSubmitted(true);
+        setFormData({ name: '', email: '', message: '' });
+        setTimeout(() => setSubmitted(false), 5000);
+      } else {
+        alert("Failed to deliver message. Please try again.");
+      }
+    } catch (error) {
+      console.error("Submission error:", error);
+      alert("An error occurred. Please check your connection and try again.");
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -79,10 +100,20 @@ export default function Contact() {
 
             <button
               type="submit"
-              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm py-3 px-4 rounded-lg flex items-center justify-center space-x-2 shadow transition-colors"
+              disabled={isSending}
+              className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-400 text-white font-semibold text-sm py-3 px-4 rounded-lg flex items-center justify-center space-x-2 shadow transition-colors"
             >
-              <span>Transmit Message</span>
-              <Send className="h-4 w-4" />
+              {isSending ? (
+                <>
+                  <span>Transmitting...</span>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                </>
+              ) : (
+                <>
+                  <span>Transmit Message</span>
+                  <Send className="h-4 w-4" />
+                </>
+              )}
             </button>
           </form>
         )}
