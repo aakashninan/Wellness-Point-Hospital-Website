@@ -176,7 +176,7 @@ export default function BookAppointment() {
       {/* MARQUEE BANNER */}
       <div className="w-full overflow-hidden bg-red-600 text-white font-bold py-2">
         <div className="whitespace-nowrap animate-marquee">
-          ⚠️ CURRENTLY UNDER TESTING PHASE — NOT TO BE USED ⚠️
+          ⚠️ CURRENTLY UNDER TESTING PHASE — NOT TO FOR COMMERICIAL USE ⚠️
         </div>
       </div>
 
