@@ -54,7 +54,7 @@ export default function Home() {
       {/* GRID OVERLAY */}
       <div className="absolute inset-0 opacity-[0.03] bg-[linear-gradient(to_right,#000_1px,transparent_1px),linear-gradient(to_bottom,#000_1px,transparent_1px)] bg-[size:70px_70px]" />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-10">
+      <div className="relative z-10 max-w-7xl mx-auto px-6 md:px-10 py-8">
 
         {/* HERO */}
         <section className="relative overflow-hidden rounded-[40px] border border-white/60 bg-white/70 backdrop-blur-3xl shadow-[0_20px_80px_rgba(0,0,0,0.06)]">
@@ -67,7 +67,7 @@ export default function Home() {
             <div className="absolute top-0 left-[-100%] h-full w-[50%] rotate-12 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[shine_10s_linear_infinite]" />
           </div>
 
-          <div className="relative z-10 grid lg:grid-cols-2 items-center gap-16 px-8 md:px-20 py-24">
+          <div className="relative z-10 grid lg:grid-cols-2 items-center gap-12 px-8 md:px-20 py-16">
 
             {/* LEFT CONTENT */}
             <div className="relative">
@@ -94,7 +94,7 @@ export default function Home() {
               </div>
 
               {/* FLOATING BADGE */}
-              <div className="mt-8 inline-flex items-center gap-3 px-5 py-3 rounded-full bg-white/80 backdrop-blur-xl border border-white shadow-lg animate-bounce">
+              <div className="mt-6 inline-flex items-center gap-3 px-5 py-3 rounded-full bg-white/80 backdrop-blur-xl border border-white shadow-lg animate-bounce">
 
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
 
@@ -105,29 +105,29 @@ export default function Home() {
               </div>
 
               {/* HEADING */}
-              <h1 className="mt-10 font-serif text-6xl md:text-7xl lg:text-8xl leading-[0.95] tracking-tight">
+              <h1 className="mt-8 font-serif text-5xl md:text-6xl lg:text-7xl leading-[1] tracking-tight">
 
                 Committed to
 
-                <span className="block text-emerald-700 mt-4">
+                <span className="block text-emerald-700 mt-3">
                   Compassionate Care
                 </span>
 
               </h1>
 
               {/* PULSE LINE */}
-              <div className="mt-8 overflow-hidden">
+              <div className="mt-6 overflow-hidden">
                 <div className="h-[2px] bg-gradient-to-r from-transparent via-emerald-500 to-transparent animate-pulse" />
               </div>
 
               {/* SUBTITLE */}
-              <p className="mt-8 text-lg md:text-xl text-slate-600 leading-relaxed max-w-2xl">
+              <p className="mt-6 text-base md:text-lg text-slate-600 leading-relaxed max-w-xl">
                 Wellness Point Hospital blends modern medical excellence with empathy,
                 dignity, and deeply personalized healing experiences.
               </p>
 
               {/* CTA BUTTONS */}
-              <div className="mt-12 flex flex-wrap gap-5">
+              <div className="mt-10 flex flex-wrap gap-5">
 
                 {/* PRIMARY */}
                 <Link
@@ -157,24 +157,24 @@ export default function Home() {
             </div>
 
             {/* RIGHT VISUAL */}
-            <div className="relative flex justify-center items-center h-[600px]">
+            <div className="relative flex justify-center items-center h-[520px]">
 
               {/* ORB GLOW */}
               <div className="absolute w-72 h-72 rounded-full bg-emerald-100/40 blur-3xl animate-pulse" />
 
               {/* CENTRAL CORE */}
-              <div className="relative z-20 w-44 h-44 rounded-full bg-white/80 backdrop-blur-2xl border border-white shadow-[0_20px_60px_rgba(0,0,0,0.08)] flex items-center justify-center">
+              <div className="relative z-20 w-40 h-40 rounded-full bg-white/80 backdrop-blur-2xl border border-white shadow-[0_20px_60px_rgba(0,0,0,0.08)] flex items-center justify-center">
 
-                <HeartPulse className="h-20 w-20 text-emerald-600 animate-pulse" />
+                <HeartPulse className="h-16 w-16 text-emerald-600 animate-pulse" />
 
               </div>
 
               {/* FLOAT CARD 1 */}
-              <div className="absolute top-10 left-0 animate-[float_6s_ease-in-out_infinite]">
+              <div className="absolute top-8 left-0 animate-[float_6s_ease-in-out_infinite]">
 
-                <div className="p-6 rounded-3xl bg-white/70 backdrop-blur-xl border border-white shadow-xl w-64 hover:scale-105 transition-all duration-500">
+                <div className="p-5 rounded-3xl bg-white/70 backdrop-blur-xl border border-white shadow-xl w-60 hover:scale-105 transition-all duration-500">
 
-                  <Feather className="h-8 w-8 text-emerald-600 mb-4" />
+                  <Feather className="h-7 w-7 text-emerald-600 mb-4" />
 
                   <h3 className="font-semibold text-lg">
                     Tailored Recovery
@@ -189,11 +189,11 @@ export default function Home() {
               </div>
 
               {/* FLOAT CARD 2 */}
-              <div className="absolute bottom-16 left-12 animate-[float_8s_ease-in-out_infinite]">
+              <div className="absolute bottom-10 left-12 animate-[float_8s_ease-in-out_infinite]">
 
-                <div className="p-6 rounded-3xl bg-white/70 backdrop-blur-xl border border-white shadow-xl w-64 hover:scale-105 transition-all duration-500">
+                <div className="p-5 rounded-3xl bg-white/70 backdrop-blur-xl border border-white shadow-xl w-60 hover:scale-105 transition-all duration-500">
 
-                  <Droplets className="h-8 w-8 text-emerald-600 mb-4" />
+                  <Droplets className="h-7 w-7 text-emerald-600 mb-4" />
 
                   <h3 className="font-semibold text-lg">
                     Refined Expertise
@@ -208,11 +208,11 @@ export default function Home() {
               </div>
 
               {/* FLOAT CARD 3 */}
-              <div className="absolute top-24 right-0 animate-[float_7s_ease-in-out_infinite]">
+              <div className="absolute top-20 right-0 animate-[float_7s_ease-in-out_infinite]">
 
-                <div className="p-6 rounded-3xl bg-white/70 backdrop-blur-xl border border-white shadow-xl w-64 hover:scale-105 transition-all duration-500">
+                <div className="p-5 rounded-3xl bg-white/70 backdrop-blur-xl border border-white shadow-xl w-60 hover:scale-105 transition-all duration-500">
 
-                  <Waves className="h-8 w-8 text-emerald-600 mb-4" />
+                  <Waves className="h-7 w-7 text-emerald-600 mb-4" />
 
                   <h3 className="font-semibold text-lg">
                     Peaceful Environment
@@ -232,7 +232,7 @@ export default function Home() {
         </section>
 
         {/* VALUES SECTION */}
-        <section className="mt-32">
+        <section className="mt-24">
 
           <div className="text-center max-w-2xl mx-auto">
 
