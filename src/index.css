@@ -15,3 +15,16 @@ body {
 .font-serif {
   font-family: 'Cormorant Garamond', serif;
 }
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-18px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
