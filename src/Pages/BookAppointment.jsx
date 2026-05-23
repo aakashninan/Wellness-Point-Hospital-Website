@@ -46,9 +46,6 @@ export default function BookAppointment() {
     symptoms: '',
   });
 
-  /* =========================
-     FETCH BOOKED SLOTS (SYNC DB)
-  ========================= */
   useEffect(() => {
     if (!form.doctor || !form.date) return;
 
@@ -56,11 +53,7 @@ export default function BookAppointment() {
       .then((res) => res.json())
       .then((data) => {
         const taken = data
-          .filter(
-            (a) =>
-              a.doctor === form.doctor &&
-              a.date === form.date
-          )
+          .filter((a) => a.doctor === form.doctor && a.date === form.date)
           .map((a) => a.time);
 
         setBookedSlots(taken);
@@ -88,10 +81,6 @@ export default function BookAppointment() {
     setForm({ ...form, [name]: value });
   };
 
-  /* =========================
-     DATE RULES
-  ========================= */
-
   const availableDates = useMemo(() => {
     if (!form.doctor) return [];
 
@@ -112,10 +101,6 @@ export default function BookAppointment() {
 
     return dates;
   }, [form.doctor]);
-
-  /* =========================
-     SLOT GENERATION (15 MIN)
-  ========================= */
 
   const generateSlots = (doctor, date) => {
     const schedule = schedules[doctor];
@@ -138,7 +123,6 @@ export default function BookAppointment() {
         const m = String(t % 60).padStart(2, '0');
         const time = `${h}:${m}`;
 
-        // ❌ REMOVE ALREADY BOOKED SLOTS
         if (!bookedSlots.includes(time)) {
           slots.push(time);
         }
@@ -153,10 +137,6 @@ export default function BookAppointment() {
     return generateSlots(form.doctor, form.date);
   }, [form.doctor, form.date, bookedSlots]);
 
-  /* =========================
-     SUBMIT (SAFE CHECK)
-  ========================= */
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -166,11 +146,14 @@ export default function BookAppointment() {
     }
 
     try {
-      const res = await fetch('https://wellness-point-hospital-website-1.onrender.com/api/appointments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
+      const res = await fetch(
+        'https://wellness-point-hospital-website-1.onrender.com/api/appointments',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(form),
+        }
+      );
 
       const data = await res.json();
 
@@ -189,129 +172,129 @@ export default function BookAppointment() {
   const disabled = !form.doctor;
 
   return (
-    <div className="min-h-screen bg-[#fafaf8] px-6 py-12 flex justify-center">
-      <div className="w-full max-w-3xl bg-white border border-slate-100 rounded-3xl shadow-sm p-10 space-y-10">
-
-        {/* HEADER */}
-        <div>
-          <h1 className="text-3xl font-serif font-semibold text-slate-900">
-            Book Appointment
-          </h1>
-          <p className="text-slate-500 mt-2">
-            Select doctor first to unlock available dates & time slots.
-          </p>
+    <>
+      {/* MARQUEE BANNER */}
+      <div className="w-full overflow-hidden bg-red-600 text-white font-bold py-2">
+        <div className="whitespace-nowrap animate-marquee">
+          ⚠️ CURRENTLY UNDER TESTING PHASE — NOT TO BE USED ⚠️
         </div>
-
-        {/* SELECTED DOCTOR */}
-        {selectedDoctor && (
-          <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-100">
-            <p className="text-emerald-700 text-sm font-medium">
-              Selected Doctor
-            </p>
-            <p className="text-slate-900 font-semibold">
-              {selectedDoctor.doctor}
-            </p>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-
-          {/* PATIENT INFO */}
-          <div className="grid md:grid-cols-2 gap-4">
-            <input
-              name="name"
-              placeholder="Patient Name"
-              className="p-3 border rounded-xl"
-              onChange={handleChange}
-              required
-            />
-
-            <input
-              name="phone"
-              placeholder="Phone Number"
-              className="p-3 border rounded-xl"
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* DOCTOR */}
-          <select
-            name="doctor"
-            value={form.doctor}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-xl bg-white"
-            required
-          >
-            <option value="">Select Doctor</option>
-            {doctorList.map((d, i) => (
-              <option key={i} value={d.doctor}>
-                {d.doctor} ({d.dept})
-              </option>
-            ))}
-          </select>
-
-          {/* DATE */}
-          <select
-            name="date"
-            value={form.date}
-            onChange={handleChange}
-            disabled={disabled}
-            className="w-full p-3 border rounded-xl bg-white disabled:bg-slate-100"
-            required
-          >
-            <option value="">Select Appointment Date</option>
-            {availableDates.map((d, i) => (
-              <option key={i} value={d}>
-                {d}
-              </option>
-            ))}
-          </select>
-
-          {/* TIME */}
-          <select
-            name="time"
-            value={form.time}
-            onChange={handleChange}
-            disabled={!form.date}
-            className="w-full p-3 border rounded-xl bg-white disabled:bg-slate-100"
-            required
-          >
-            <option value="">Select Time Slot</option>
-            {timeSlots.map((t, i) => (
-              <option key={i} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-
-          {/* DEPARTMENT */}
-          <input
-            name="department"
-            value={form.department}
-            readOnly
-            className="w-full p-3 border rounded-xl bg-slate-50"
-          />
-
-          {/* SYMPTOMS */}
-          <textarea
-            name="symptoms"
-            placeholder="Describe symptoms..."
-            rows="4"
-            className="w-full p-3 border rounded-xl"
-            onChange={handleChange}
-          />
-
-          {/* SUBMIT */}
-          <button
-            className="w-full bg-emerald-600 text-white py-3 rounded-xl hover:bg-emerald-700 transition disabled:opacity-50"
-            disabled={!form.doctor || !form.date || !form.time}
-          >
-            Confirm Appointment
-          </button>
-
-        </form>
       </div>
-    </div>
+
+      <div className="min-h-screen bg-[#fafaf8] px-6 py-12 flex justify-center">
+        <div className="w-full max-w-3xl bg-white border border-slate-100 rounded-3xl shadow-sm p-10 space-y-10">
+
+          <div>
+            <h1 className="text-3xl font-serif font-semibold text-slate-900">
+              Book Appointment
+            </h1>
+            <p className="text-slate-500 mt-2">
+              Select doctor first to unlock available dates & time slots.
+            </p>
+          </div>
+
+          {selectedDoctor && (
+            <div className="p-5 rounded-2xl bg-emerald-50 border border-emerald-100">
+              <p className="text-emerald-700 text-sm font-medium">
+                Selected Doctor
+              </p>
+              <p className="text-slate-900 font-semibold">
+                {selectedDoctor.doctor}
+              </p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <input
+                name="name"
+                placeholder="Patient Name"
+                className="p-3 border rounded-xl"
+                onChange={handleChange}
+                required
+              />
+
+              <input
+                name="phone"
+                placeholder="Phone Number"
+                className="p-3 border rounded-xl"
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <select
+              name="doctor"
+              value={form.doctor}
+              onChange={handleChange}
+              className="w-full p-3 border rounded-xl bg-white"
+              required
+            >
+              <option value="">Select Doctor</option>
+              {doctorList.map((d, i) => (
+                <option key={i} value={d.doctor}>
+                  {d.doctor} ({d.dept})
+                </option>
+              ))}
+            </select>
+
+            <select
+              name="date"
+              value={form.date}
+              onChange={handleChange}
+              disabled={disabled}
+              className="w-full p-3 border rounded-xl bg-white disabled:bg-slate-100"
+              required
+            >
+              <option value="">Select Appointment Date</option>
+              {availableDates.map((d, i) => (
+                <option key={i} value={d}>
+                  {d}
+                </option>
+              ))}
+            </select>
+
+            <select
+              name="time"
+              value={form.time}
+              onChange={handleChange}
+              disabled={!form.date}
+              className="w-full p-3 border rounded-xl bg-white disabled:bg-slate-100"
+              required
+            >
+              <option value="">Select Time Slot</option>
+              {timeSlots.map((t, i) => (
+                <option key={i} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+
+            <input
+              name="department"
+              value={form.department}
+              readOnly
+              className="w-full p-3 border rounded-xl bg-slate-50"
+            />
+
+            <textarea
+              name="symptoms"
+              placeholder="Describe symptoms..."
+              rows="4"
+              className="w-full p-3 border rounded-xl"
+              onChange={handleChange}
+            />
+
+            <button
+              className="w-full bg-emerald-600 text-white py-3 rounded-xl hover:bg-emerald-700 transition disabled:opacity-50"
+              disabled={!form.doctor || !form.date || !form.time}
+            >
+              Confirm Appointment
+            </button>
+
+          </form>
+        </div>
+      </div>
+    </>
   );
 }
