@@ -76,7 +76,6 @@ export default function AdminPanel() {
     const res = await fetch(API);
     const data = await res.json();
 
-    // 🔔 detect new appointments
     if (lastCount && data.length > lastCount) {
       const newItems = data.length - lastCount;
 
@@ -120,7 +119,7 @@ export default function AdminPanel() {
     }
   };
 
-  /* ================= UPDATE STATUS ================= */
+  /* ================= UPDATE + DELETE ================= */
   const updateStatus = async (id, status) => {
     await fetch(`${API}/${id}`, {
       method: "PUT",
@@ -128,15 +127,9 @@ export default function AdminPanel() {
       body: JSON.stringify({ status }),
     });
 
-    // remove related notification
-    setNotifications((prev) =>
-      prev.filter((n) => !n.message.includes("new appointment"))
-    );
-
     load();
   };
 
-  /* ================= DELETE ================= */
   const deleteAppointment = async (id) => {
     if (!window.confirm("Delete this appointment?")) return;
 
@@ -144,18 +137,11 @@ export default function AdminPanel() {
       method: "DELETE",
     });
 
-    setNotifications((prev) =>
-      prev.filter((n) => !n.message.includes("new appointment"))
-    );
-
     load();
   };
 
-  /* ================= DISMISS NOTIFICATION ================= */
   const removeNotification = (id) => {
-    setNotifications((prev) =>
-      prev.filter((n) => n.id !== id)
-    );
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
   /* ================= FILTERS ================= */
@@ -222,16 +208,16 @@ export default function AdminPanel() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6 space-y-6">
 
-      {/* 🔔 NOTIFICATIONS (PERSISTENT) */}
+      {/* NOTIFICATIONS */}
       <div className="fixed top-5 right-5 space-y-3 z-50">
         {notifications.map((n) => (
           <div
             key={n.id}
             onClick={() => removeNotification(n.id)}
-            className="bg-emerald-600 text-white px-4 py-3 rounded-xl shadow-lg cursor-pointer hover:bg-emerald-700 transition"
+            className="bg-emerald-600 text-white px-4 py-3 rounded-xl shadow cursor-pointer"
           >
             {n.message}
-            <p className="text-xs opacity-80 mt-1">
+            <p className="text-xs opacity-80">
               Click to dismiss
             </p>
           </div>
@@ -276,9 +262,117 @@ export default function AdminPanel() {
         )}
       </div>
 
-      {/* (YOUR EXISTING UI REMAINS SAME BELOW) */}
-      {/* pending / approved / today / tomorrow / add sections stay unchanged */}
+      {/* ================= PENDING ================= */}
+      {view === "pending" && (
+        <div className="space-y-4">
+          {Object.keys(pendingGrouped).map((date) => (
+            <div key={date} className="bg-white rounded-2xl shadow-sm">
+              <button
+                onClick={() =>
+                  setOpenDate(openDate === date ? null : date)
+                }
+                className="w-full p-5 flex justify-between bg-slate-50"
+              >
+                📅 {date}
+              </button>
 
+              {openDate === date && (
+                <div className="p-4 space-y-3">
+                  {pendingGrouped[date].map((a) => (
+                    <div
+                      key={a._id}
+                      className="flex justify-between bg-slate-50 p-4 rounded-xl"
+                    >
+                      <div>
+                        <h3 className="font-semibold">{a.name}</h3>
+                        <p>{a.doctor}</p>
+                        <p>{a.time}</p>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() =>
+                            updateStatus(a._id, "approved")
+                          }
+                          className="bg-emerald-600 text-white px-3 py-1 rounded"
+                        >
+                          Approve
+                        </button>
+
+                        <button
+                          onClick={() => deleteAppointment(a._id)}
+                          className="bg-red-600 text-white px-3 py-1 rounded"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ================= APPROVED ================= */}
+      {view === "approved" && (
+        <div className="space-y-4">
+          {Object.keys(approvedGrouped).map((date) => (
+            <div key={date} className="bg-emerald-50 p-5 rounded-2xl">
+              <h2>📅 {date}</h2>
+
+              {approvedGrouped[date].map((a) => (
+                <div key={a._id} className="bg-white p-4 rounded-xl mb-3">
+                  <h3>{a.name}</h3>
+                  <p>{a.doctor}</p>
+                  <p>{a.time}</p>
+
+                  <button
+                    onClick={() => deleteAppointment(a._id)}
+                    className="mt-2 bg-red-600 text-white px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ================= TODAY ================= */}
+      {view === "today" && (
+        <div className="space-y-3">
+          {todayList.map((a) => (
+            <div key={a._id} className="bg-white p-4 rounded-xl">
+              <h3>{a.name}</h3>
+              <p>{a.doctor}</p>
+              <p>{a.time}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ================= TOMORROW ================= */}
+      {view === "tomorrow" && (
+        <div className="space-y-3">
+          {tomorrowList.map((a) => (
+            <div key={a._id} className="bg-white p-4 rounded-xl">
+              <h3>{a.name}</h3>
+              <p>{a.doctor}</p>
+              <p>{a.time}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ================= ADD ================= */}
+      {view === "add" && (
+        <form className="bg-white p-6 rounded-xl space-y-4">
+          <h2>Create Appointment</h2>
+        </form>
+      )}
     </div>
   );
 }
