@@ -22,12 +22,10 @@ export default function AdminPanel() {
   const [view, setView] = useState("pending");
   const [login, setLogin] = useState({ username: "", password: "" });
 
-  /* ================= REFS ================= */
   const seenIdsRef = useRef(new Set());
   const appointmentRefs = useRef({});
   const highlightRef = useRef({});
 
-  /* ================= NOTIFICATIONS ================= */
   const [notifications, setNotifications] = useState([]);
 
   /* ================= FETCH ================= */
@@ -35,26 +33,23 @@ export default function AdminPanel() {
     try {
       const res = await fetch(API);
       const data = await res.json();
-
       const safeData = Array.isArray(data) ? data : [];
 
-      /* detect new appointments */
       const newAppointments = safeData.filter(
         (a) => !seenIdsRef.current.has(a._id)
       );
 
-      /* create notification per appointment */
       if (newAppointments.length > 0 && seenIdsRef.current.size > 0) {
-        const newNotifs = newAppointments.map((a) => ({
-          id: a._id,
-          appointmentId: a._id,
-          message: `🆕 ${a.name} booked ${a.doctor}`,
-        }));
-
-        setNotifications((prev) => [...newNotifs, ...prev]);
+        setNotifications((prev) => [
+          ...newAppointments.map((a) => ({
+            id: a._id,
+            appointmentId: a._id,
+            message: `🆕 ${a.name} booked ${a.doctor}`,
+          })),
+          ...prev,
+        ]);
       }
 
-      /* update seen IDs */
       safeData.forEach((a) => seenIdsRef.current.add(a._id));
 
       setAppointments(safeData);
@@ -64,13 +59,10 @@ export default function AdminPanel() {
     }
   };
 
-  /* ================= POLLING ================= */
   useEffect(() => {
     if (!isAuth) return;
-
     load();
     const interval = setInterval(load, 8000);
-
     return () => clearInterval(interval);
   }, [isAuth]);
 
@@ -79,9 +71,7 @@ export default function AdminPanel() {
     e.preventDefault();
     if (login.username === "wpadmin" && login.password === "wp111168") {
       setIsAuth(true);
-    } else {
-      alert("Invalid credentials");
-    }
+    } else alert("Invalid credentials");
   };
 
   /* ================= ACTIONS ================= */
@@ -91,36 +81,12 @@ export default function AdminPanel() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
-
     load();
   };
 
   const deleteAppointment = async (id) => {
-    if (!window.confirm("Delete this appointment?")) return;
-
     await fetch(`${API}/${id}`, { method: "DELETE" });
     load();
-  };
-
-  /* ================= CLICK NOTIFICATION ================= */
-  const handleNotificationClick = (notif) => {
-    const el = appointmentRefs.current[notif.appointmentId];
-
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "center" });
-
-      /* highlight effect */
-      highlightRef.current[notif.appointmentId] = true;
-
-      setTimeout(() => {
-        highlightRef.current[notif.appointmentId] = false;
-        setAppointments((prev) => [...prev]);
-      }, 1200);
-    }
-
-    setNotifications((prev) =>
-      prev.filter((n) => n.id !== notif.id)
-    );
   };
 
   /* ================= FILTERS ================= */
@@ -145,15 +111,14 @@ export default function AdminPanel() {
   const pendingGrouped = groupByDate(pending);
   const approvedGrouped = groupByDate(approved);
 
-  /* ================= LAST 4 NEW BADGE ================= */
-  const sortedByLatest = [...appointments]
-    .sort((a, b) => (b._id > a._id ? 1 : -1))
-    .slice(0, 4);
+  /* ================= UI HELP ================= */
+  const CardInfo = ({ a }) => (
+    <div className="text-sm text-slate-600 mt-1 space-y-1">
+      <p>📞 {a.phone || "N/A"}</p>
+      <p>🩺 {a.symptoms || "No symptoms provided"}</p>
+    </div>
+  );
 
-  const isNew = (id) =>
-    sortedByLatest.some((a) => a._id === id);
-
-  /* ================= LOGIN SCREEN ================= */
   if (!isAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
@@ -161,10 +126,6 @@ export default function AdminPanel() {
           onSubmit={handleLogin}
           className="bg-white p-8 rounded-2xl shadow w-[360px] space-y-4"
         >
-          <h1 className="text-xl font-semibold text-center">
-            Admin Login
-          </h1>
-
           <input
             placeholder="Username"
             className="w-full p-3 border rounded-xl"
@@ -190,48 +151,28 @@ export default function AdminPanel() {
     );
   }
 
-  /* ================= UI ================= */
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6">
-
-      {/* NOTIFICATIONS */}
-      <div className="fixed top-5 right-5 space-y-3 z-50 w-[320px]">
-        {notifications.map((n) => (
-          <div
-            key={n.id}
-            onClick={() => handleNotificationClick(n)}
-            className="bg-emerald-600 text-white p-3 rounded-xl shadow cursor-pointer hover:bg-emerald-700 transition"
-          >
-            {n.message}
-            <p className="text-xs opacity-80">
-              click to view
-            </p>
-          </div>
-        ))}
-      </div>
+    <div className="min-h-screen bg-slate-50 p-6">
 
       {/* HEADER */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between mb-5">
         <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-
         <button
           onClick={() => navigate("/")}
-          className="px-4 py-2 rounded-xl bg-black text-white"
+          className="bg-black text-white px-4 py-2 rounded-xl"
         >
           Home
         </button>
       </div>
 
-      {/* TABS (UPGRADED UI) */}
-      <div className="flex gap-2 bg-white p-2 rounded-2xl shadow w-fit mb-6">
+      {/* TABS */}
+      <div className="flex gap-2 bg-white p-2 rounded-xl w-fit mb-5">
         {["pending", "approved", "today", "tomorrow"].map((v) => (
           <button
             key={v}
             onClick={() => setView(v)}
-            className={`px-5 py-2 rounded-xl transition-all font-medium ${
-              view === v
-                ? "bg-emerald-600 text-white shadow"
-                : "hover:bg-slate-100"
+            className={`px-4 py-2 rounded-lg ${
+              view === v ? "bg-emerald-600 text-white" : ""
             }`}
           >
             {v.toUpperCase()}
@@ -240,111 +181,89 @@ export default function AdminPanel() {
       </div>
 
       {/* ================= PENDING ================= */}
-      {view === "pending" && (
-        <div className="space-y-4">
-          {Object.keys(pendingGrouped).map((date) => (
-            <div key={date} className="bg-white rounded-xl shadow">
-              <div className="p-4 font-semibold bg-slate-50">
-                📅 {date}
-              </div>
+      {view === "pending" &&
+        Object.keys(pendingGrouped).map((date) => (
+          <div key={date} className="bg-white rounded-xl mb-4">
+            <h2 className="p-4 font-semibold bg-slate-100">
+              📅 {date}
+            </h2>
 
-              {pendingGrouped[date].map((a) => (
-                <div
-                  key={a._id}
-                  ref={(el) =>
-                    (appointmentRefs.current[a._id] = el)
-                  }
-                  className={`p-4 border-b flex justify-between transition ${
-                    highlightRef.current[a._id]
-                      ? "bg-yellow-100"
-                      : ""
-                  }`}
-                >
-                  <div>
-                    <p className="font-semibold">
-                      {a.name}{" "}
-                      {isNew(a._id) && (
-                        <span className="text-xs bg-red-500 text-white px-2 py-1 rounded ml-2">
-                          NEW
-                        </span>
-                      )}
-                    </p>
-                    <p className="text-sm">{a.doctor}</p>
-                    <p className="text-sm">{a.time}</p>
-                  </div>
+            {pendingGrouped[date].map((a) => (
+              <div
+                key={a._id}
+                className="p-4 border-b flex justify-between"
+              >
+                <div>
+                  <p className="font-semibold">{a.name}</p>
+                  <p>👨‍⚕️ {a.doctor}</p>
+                  <p>⏰ {a.time}</p>
 
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() =>
-                        updateStatus(a._id, "approved")
-                      }
-                      className="bg-emerald-600 text-white px-3 py-1 rounded-lg"
-                    >
-                      Approve
-                    </button>
-
-                    <button
-                      onClick={() =>
-                        deleteAppointment(a._id)
-                      }
-                      className="bg-red-600 text-white px-3 py-1 rounded-lg"
-                    >
-                      Delete
-                    </button>
-                  </div>
+                  {/* ✅ ADDED DETAILS */}
+                  <CardInfo a={a} />
                 </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
+
+                <div className="flex gap-2">
+                  <button
+                    onClick={() =>
+                      updateStatus(a._id, "approved")
+                    }
+                    className="bg-emerald-600 text-white px-3 py-1 rounded"
+                  >
+                    Approve
+                  </button>
+
+                  <button
+                    onClick={() => deleteAppointment(a._id)}
+                    className="bg-red-600 text-white px-3 py-1 rounded"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ))}
 
       {/* ================= APPROVED ================= */}
-      {view === "approved" && (
-        <div className="space-y-4">
-          {Object.keys(approvedGrouped).map((date) => (
-            <div
-              key={date}
-              className="bg-emerald-50 p-4 rounded-xl"
-            >
-              <h2 className="font-semibold mb-3">📅 {date}</h2>
+      {view === "approved" &&
+        Object.keys(approvedGrouped).map((date) => (
+          <div key={date} className="bg-emerald-50 p-4 rounded-xl mb-4">
+            <h2 className="font-semibold mb-3">📅 {date}</h2>
 
-              {approvedGrouped[date].map((a) => (
-                <div
-                  key={a._id}
-                  className="bg-white p-3 rounded-lg mb-2"
-                >
-                  <p className="font-semibold">{a.name}</p>
-                  <p>{a.doctor}</p>
-                  <p>{a.time}</p>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      )}
+            {approvedGrouped[date].map((a) => (
+              <div key={a._id} className="bg-white p-3 rounded-lg mb-2">
+                <p className="font-semibold">{a.name}</p>
+                <p>👨‍⚕️ {a.doctor}</p>
+                <p>⏰ {a.time}</p>
+
+                {/* ✅ ADDED DETAILS */}
+                <CardInfo a={a} />
+              </div>
+            ))}
+          </div>
+        ))}
 
       {/* ================= TODAY ================= */}
-      {view === "today" && (
-        <div className="space-y-2">
-          {todayList.map((a) => (
-            <div key={a._id} className="bg-white p-3 rounded-xl">
-              {a.name} - {a.doctor} - {a.time}
-            </div>
-          ))}
-        </div>
-      )}
+      {view === "today" &&
+        todayList.map((a) => (
+          <div key={a._id} className="bg-white p-3 rounded-xl mb-2">
+            <p>{a.name}</p>
+            <p>{a.doctor}</p>
+            <p>{a.time}</p>
+            <CardInfo a={a} />
+          </div>
+        ))}
 
       {/* ================= TOMORROW ================= */}
-      {view === "tomorrow" && (
-        <div className="space-y-2">
-          {tomorrowList.map((a) => (
-            <div key={a._id} className="bg-white p-3 rounded-xl">
-              {a.name} - {a.doctor} - {a.time}
-            </div>
-          ))}
-        </div>
-      )}
+      {view === "tomorrow" &&
+        tomorrowList.map((a) => (
+          <div key={a._id} className="bg-white p-3 rounded-xl mb-2">
+            <p>{a.name}</p>
+            <p>{a.doctor}</p>
+            <p>{a.time}</p>
+            <CardInfo a={a} />
+          </div>
+        ))}
     </div>
   );
 }
