@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Clock, Home, Pill, Scan, Sparkles, Shield, Activity } from 'lucide-react';
+import { Clock, Home, Pill, Scan, FlaskConical, Sparkles, Shield, Activity } from 'lucide-react';
 
 export default function Facilities() {
   const [activeIndex, setActiveIndex] = useState(null);
@@ -23,10 +23,12 @@ export default function Facilities() {
       icon: Pill,
       tag: 'Support System',
     },
+
+    // ✅ NEW LABORATORY (replaces X-Ray position)
     {
-      title: 'Advanced X-Ray Facility',
-      desc: 'High-precision digital radiology unit enabling fast and accurate diagnostic imaging for effective treatment planning.',
-      icon: Scan,
+      title: 'Advanced Clinical Laboratory',
+      desc: 'Fully equipped diagnostic laboratory offering fast and accurate blood tests, urine analysis, and comprehensive pathology services for precise treatment decisions.',
+      icon: FlaskConical,
       tag: 'Diagnostics',
     },
   ];
@@ -55,7 +57,7 @@ export default function Facilities() {
         </p>
       </div>
 
-      {/* STATS STRIP (MAKES IT FEEL BIGGER) */}
+      {/* STATS STRIP */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto mb-16 relative z-10">
         {[
           { icon: Shield, label: '24/7 Safety' },
@@ -92,37 +94,61 @@ export default function Facilities() {
               ${isActive ? 'shadow-2xl scale-[1.02] border-emerald-200' : 'shadow-sm border-slate-100'}`}
             >
 
-              {/* HOVER GLOW */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-500 bg-gradient-to-br from-emerald-50 via-transparent to-transparent" />
 
-              {/* TAG */}
               <div className="relative z-10 mb-4 inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-700">
                 <Sparkles className="h-3 w-3" />
                 {item.tag}
               </div>
 
-              {/* ICON */}
               <div className="relative z-10 w-14 h-14 rounded-2xl bg-white shadow-inner flex items-center justify-center mb-5 group-hover:scale-110 transition">
                 <Icon className="h-6 w-6 text-emerald-600" />
               </div>
 
-              {/* TITLE */}
               <h2 className="relative z-10 text-xl md:text-2xl font-semibold text-slate-900 mb-3">
                 {item.title}
               </h2>
 
-              {/* DESCRIPTION */}
               <p className="relative z-10 text-slate-600 leading-relaxed text-base">
                 {item.desc}
               </p>
 
-              {/* FAKE "EXPANSION ENERGY" TEXT (MAKES IT FEEL BIGGER SYSTEM) */}
               <div className="relative z-10 mt-6 text-xs text-emerald-600 opacity-0 group-hover:opacity-100 transition">
                 Integrated into hospital-wide care network →
               </div>
             </div>
           );
         })}
+      </div>
+
+      {/* ✅ X-RAY MOVED TO BOTTOM CENTER */}
+      <div className="flex justify-center mt-14 relative z-10">
+        <div className="w-full max-w-md group cursor-pointer rounded-3xl border bg-white/70 backdrop-blur-xl p-8 shadow-sm hover:shadow-2xl transition-all duration-500 hover:scale-[1.03] border-slate-100">
+
+          <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-gradient-to-br from-emerald-50 via-transparent to-transparent rounded-3xl" />
+
+          <div className="relative z-10 mb-4 inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full bg-emerald-50 text-emerald-700">
+            <Sparkles className="h-3 w-3" />
+            Diagnostics
+          </div>
+
+          <div className="relative z-10 w-14 h-14 rounded-2xl bg-white shadow-inner flex items-center justify-center mb-5 group-hover:scale-110 transition">
+            <Scan className="h-6 w-6 text-emerald-600" />
+          </div>
+
+          <h2 className="relative z-10 text-xl md:text-2xl font-semibold text-slate-900 mb-3">
+            Advanced X-Ray Facility
+          </h2>
+
+          <p className="relative z-10 text-slate-600 leading-relaxed text-base">
+            High-precision digital radiology unit enabling fast and accurate diagnostic imaging for effective treatment planning.
+          </p>
+
+          <div className="relative z-10 mt-6 text-xs text-emerald-600 opacity-0 group-hover:opacity-100 transition">
+            Integrated into hospital-wide care network →
+          </div>
+
+        </div>
       </div>
 
       {/* FOOTER INSIGHT STRIP */}
