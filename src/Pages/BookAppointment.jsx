@@ -6,6 +6,7 @@ export default function BookAppointment() {
   const selectedDoctor = location.state?.doctor || null;
 
   const [bookedSlots, setBookedSlots] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
 
   const doctorList = [
     { doctor: 'Dr. Gikku P Ninan', dept: 'General Medicine' },
@@ -162,7 +163,19 @@ export default function BookAppointment() {
         return;
       }
 
-      alert('Appointment Booked Successfully!');
+      // ✅ SHOW POPUP INSTEAD OF ALERT
+      setShowPopup(true);
+
+      setForm({
+        name: '',
+        phone: '',
+        date: '',
+        time: '',
+        doctor: '',
+        department: '',
+        symptoms: '',
+      });
+
     } catch (err) {
       console.error(err);
       alert('Error booking appointment');
@@ -173,10 +186,10 @@ export default function BookAppointment() {
 
   return (
     <>
-      {/* MARQUEE BANNER */}
+      {/* MARQUEE */}
       <div className="w-full overflow-hidden bg-red-600 text-white font-bold py-2">
         <div className="whitespace-nowrap animate-marquee">
-          ⚠️ CURRENTLY UNDER TESTING PHASE — NOT  FOR COMMERCIAL USE ⚠️
+          ⚠️ CURRENTLY UNDER TESTING PHASE — NOT FOR COMMERCIAL USE ⚠️
         </div>
       </div>
 
@@ -295,6 +308,32 @@ export default function BookAppointment() {
           </form>
         </div>
       </div>
+
+      {/* ✅ POPUP MODAL */}
+      {showPopup && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full text-center animate-fadeIn">
+
+            <div className="text-emerald-600 text-4xl mb-3">✔</div>
+
+            <h2 className="text-xl font-semibold text-slate-900">
+              Appointment Sent
+            </h2>
+
+            <p className="text-slate-500 mt-2">
+              Your appointment has been sent for approval.  
+              Our representative will contact you shortly.
+            </p>
+
+            <button
+              onClick={() => setShowPopup(false)}
+              className="mt-6 bg-emerald-600 text-white px-6 py-2 rounded-xl hover:bg-emerald-700"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }
