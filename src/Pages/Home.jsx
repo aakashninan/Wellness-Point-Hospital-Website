@@ -23,7 +23,7 @@ export default function Home() {
             {/* Logo */}
             <div className="mb-10">
               <div className="flex items-center gap-3 bg-white/80 border border-slate-100 px-6 py-3 rounded-2xl shadow-sm">
-                <HeartPulse className="text-emerald-600" />
+               
                 <img src={HospitalLogo} alt="logo" className="h-12 w-auto" />
               </div>
             </div>
