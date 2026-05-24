@@ -35,7 +35,7 @@ export default function Home() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f7faf8] text-slate-900">
 
-      {/* 2. SEO META TAGS & EXPLICIT FAVICON DECLARATION FOR GOOGLEBOT */}
+      {/* 2. SEO META TAGS, FAVICON LINK, AND SITE NAME SCHEMA */}
       <Helmet>
         <title>Wellness Point Hospital | Best Healthcare in Peruva, Moorkattilpady</title>
         <meta 
@@ -48,8 +48,18 @@ export default function Home() {
         />
         <link rel="canonical" href="https://wellnesspointhospital.vercel.app/" />
         
-        {/* CRUCIAL LINK FOR GOOGLE SEARCH RESULTS DISPLAY */}
+        {/* EXPLICIT FAVICON DECLARATION FOR GOOGLEBOT */}
         <link rel="icon" type="image/png" href="/favicon.png" sizes="48x48" />
+
+        {/* WEBSITE SCHEMA TO REPLACE THE 'VERCEL' SEARCH RESULTS LABEL */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Wellness Point Hospital",
+            "url": "https://wellnesspointhospital.vercel.app/"
+          })}
+        </script>
       </Helmet>
 
       {/* INTERACTIVE CURSOR GLOW */}
