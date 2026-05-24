@@ -35,7 +35,7 @@ export default function Home() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f7faf8] text-slate-900">
 
-      {/* 2. SEO META TAGS ADDED HERE WITHOUT DISRUPTING DOM FLOW */}
+      {/* 2. SEO META TAGS & EXPLICIT FAVICON DECLARATION FOR GOOGLEBOT */}
       <Helmet>
         <title>Wellness Point Hospital | Best Healthcare in Peruva, Moorkattilpady</title>
         <meta 
@@ -47,6 +47,9 @@ export default function Home() {
           content="Wellness Point Hospital, Wellness Point Peruva, Hospital in Moorkattilpady, Clinic in Peruva Kerala, Medical services Kerala" 
         />
         <link rel="canonical" href="https://wellnesspointhospital.vercel.app/" />
+        
+        {/* CRUCIAL LINK FOR GOOGLE SEARCH RESULTS DISPLAY */}
+        <link rel="icon" type="image/png" href="/favicon.png" sizes="48x48" />
       </Helmet>
 
       {/* INTERACTIVE CURSOR GLOW */}
