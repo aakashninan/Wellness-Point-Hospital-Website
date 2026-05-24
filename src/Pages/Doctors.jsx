@@ -1,5 +1,6 @@
 import { Stethoscope, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async'; // 1. Imported Helmet safely
 import gikkuImg from './gikku.jpg';
 import meeraImg from './meera.jpg';
 
@@ -53,6 +54,20 @@ export default function Doctors() {
 
   return (
     <div className="bg-[#fafaf8] min-h-screen py-16 px-6 md:px-12 lg:px-24">
+
+      {/* 2. SEO META TAGS ADDED SPECIFIC TO SPECIALISTS PAGE */}
+      <Helmet>
+        <title>Our Specialist Doctors | Wellness Point Hospital Peruva</title>
+        <meta 
+          name="description" 
+          content="Meet the medical specialists at Wellness Point Hospital. Expert doctors in General Medicine, ENT, Orthopedics, and Emergency Care serving Moorkattilpady, Kerala." 
+        />
+        <meta 
+          name="keywords" 
+          content="Doctors in Peruva, Wellness Point doctors, General physician Moorkattilpady, ENT specialist Peruva, Orthopedic surgeon Kottayam Kerala" 
+        />
+        <link rel="canonical" href="https://wellnesspointhospital.vercel.app/doctors" />
+      </Helmet>
 
       {/* HEADER */}
       <div className="text-center max-w-3xl mx-auto mb-16">

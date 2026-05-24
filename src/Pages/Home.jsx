@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 
 import { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async'; // 1. Imported Helmet safely
 import HospitalLogo from './logo.jpg';
 
 export default function Home() {
@@ -33,6 +34,20 @@ export default function Home() {
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#f7faf8] text-slate-900">
+
+      {/* 2. SEO META TAGS ADDED HERE WITHOUT DISRUPTING DOM FLOW */}
+      <Helmet>
+        <title>Wellness Point Hospital | Best Healthcare in Peruva, Moorkattilpady</title>
+        <meta 
+          name="description" 
+          content="Wellness Point Hospital in Moorkattilpady, Peruva, Kerala offers 24/7 comprehensive medical care, advanced diagnostics, and dedicated patient-centered treatments." 
+        />
+        <meta 
+          name="keywords" 
+          content="Wellness Point Hospital, Wellness Point Peruva, Hospital in Moorkattilpady, Clinic in Peruva Kerala, Medical services Kerala" 
+        />
+        <link rel="canonical" href="https://wellnesspointhospital.vercel.app/" />
+      </Helmet>
 
       {/* INTERACTIVE CURSOR GLOW */}
       <div
